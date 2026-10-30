@@ -6,6 +6,6 @@ export ANALOG_STICKS=1 ANALOGSTICKS=1 CUR_TTY=/dev/null
 export ESUDO="" WP_32BIT=0
 export controlfolder="$ISAAC_GAMEDIR/runtime/PortMaster"
 get_controls() {
-    export SDL_GAMECONTROLLERCONFIG="19002cb4010000000100000000010000,ANBERNIC-keys,a:b0,b:b1,x:b3,y:b2,back:b8,guide:b6,start:b7,leftstick:b9,leftshoulder:b4,rightshoulder:b5,dpup:h0.1,dpleft:h0.8,dpdown:h0.4,dpright:h0.2,leftx:a0,lefty:a1,lefttrigger:b10,righttrigger:b11,platform:Linux,"
+    export SDL_GAMECONTROLLERCONFIG="19002cb4010000000100000000010000,ANBERNIC-keys,a:b0,b:b1,x:b3,y:b2,back:b6,guide:b8,start:b7,leftstick:b9,leftshoulder:b4,rightshoulder:b5,dpup:h0.1,dpleft:h0.8,dpdown:h0.4,dpright:h0.2,leftx:a0,lefty:a1,lefttrigger:b10,righttrigger:b11,platform:Linux,"
 }
 get_controls

@@ -37,6 +37,19 @@ def patch_executable(data):
     return data[:CHECK_OFFSET] + CHECK_RETURN + data[CHECK_OFFSET+len(CHECK_PROLOGUE):]
 
 
+def patch_x11_cache(data):
+    # Both hash tables share one key allocation. Only timestamps may own it:
+    # cache is removed first, then timestamps, so both lookups see a live key.
+    # Keep both value destructors and the timestamps key destructor unchanged.
+    patches = [(0x138b, '4889c2', '31d290'), (0x150c, '4883f809', '4883f800')]
+    for offset, old, new in patches:
+        old, new = bytes.fromhex(old), bytes.fromhex(new)
+        if data[offset:offset+len(old)] != old:
+            raise ValueError('Unexpected X11 cache ownership or expiration code')
+        data = data[:offset] + new + data[offset+len(old):]
+    return data
+
+
 def decode_lzw(blob, offset, size):
     """KAGE v1: MSB-first LZW, 1024-byte pieces, dictionary shared by pieces."""
     table = [bytes([n]) for n in range(256)]
@@ -139,10 +152,7 @@ def prepare(game):
     source = game/'libs.x64/libx11_cache.so'
     if sha256(source) != X11_CACHE_SHA256:
         raise ValueError('Unexpected upstream X11 cache library')
-    library = source.read_bytes()
-    if library[0x150c:0x1510] != bytes.fromhex('4883f809'):
-        raise ValueError('Unexpected X11 cache expiration code')
-    library = library[:0x150f] + b'\x00' + library[0x1510:]
+    library = patch_x11_cache(source.read_bytes())
     fast_cache = game/'libs.x64/libx11_cache_fast.so'
     if not fast_cache.exists() or fast_cache.read_bytes() != library:
         atomic_write(fast_cache, library)

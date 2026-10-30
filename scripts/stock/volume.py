@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Handle the RG40XX V volume keys while its frontend is closed."""
+import fcntl
 import os
 from pathlib import Path
 import select
@@ -9,6 +10,7 @@ import time
 
 NODE = Path('/sys/class/power_supply/axp2202-battery/openbor_volume')
 EVENT = struct.Struct('llHHi')
+EVIOCGRAB = 0x40044590
 
 
 def set_volume(level):
@@ -28,6 +30,24 @@ def find_devices(sys_input=Path('/sys/class/input'), dev_input=Path('/dev/input'
             if p.read_text().strip() in ('ANBERNIC-keys', 'dierct-keys-polled')]
 
 
+def open_devices(nodes, sys_input=Path('/sys/class/input')):
+    """Keep firmware keyboard duplicates away from SDL; retain joystick input."""
+    fds = []
+    try:
+        for node in nodes:
+            fd = os.open(node, os.O_RDONLY | os.O_NONBLOCK)
+            fds.append(fd)
+            name = (sys_input / node.name / 'device/name').read_text().strip()
+            if name == 'dierct-keys-polled':
+                fcntl.ioctl(fd, EVIOCGRAB, 1)
+                print('Isolated duplicate firmware keyboard: ' + str(node), flush=True)
+        return fds
+    except BaseException:
+        for fd in fds:
+            os.close(fd)
+        raise
+
+
 def main():
     nodes = find_devices()
     if not nodes:
@@ -35,10 +55,13 @@ def main():
     for control in ('LINEOUT', 'SPK', 'OutputL Mixer DACL', 'OutputR Mixer DACR'):
         subprocess.run(['amixer', '-q', 'sset', control, 'on'], check=True)
     level = set_volume(int(NODE.read_text().strip()))
-    fds = [os.open(node, os.O_RDONLY | os.O_NONBLOCK) for node in nodes]
+    fds = open_devices(nodes)
     last = {}
     print('Listening for volume keys on: ' + ', '.join(str(p) for p in nodes), flush=True)
     try:
+        ready = os.environ.get('ISAAC_INPUT_READY')
+        if ready:
+            Path(ready).touch()
         while True:
             for fd in select.select(fds, [], [], 1)[0]:
                 data = os.read(fd, EVENT.size * 64)

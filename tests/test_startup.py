@@ -19,6 +19,25 @@ spec.loader.exec_module(volume)
 
 
 class StartupTests(unittest.TestCase):
+    def test_x11_cache_has_one_key_owner_and_rejects_unknown_code(self):
+        library = bytearray(0x1510)
+        library[0x1381:0x1384] = bytes.fromhex('4889c1')  # keep value destructor
+        library[0x138b:0x138e] = bytes.fromhex('4889c2')  # cache key destructor
+        library[0x13b9:0x13bc] = bytes.fromhex('4889c2')  # timestamps owns key
+        library[0x150c:0x1510] = bytes.fromhex('4883f809')
+        fixed = startup.patch_x11_cache(bytes(library))
+        self.assertEqual(fixed[0x138b:0x138e], bytes.fromhex('31d290'))
+        self.assertEqual(fixed[0x1381:0x1384], library[0x1381:0x1384])
+        self.assertEqual(fixed[0x13b9:0x13bc], library[0x13b9:0x13bc])
+        self.assertEqual(fixed[0x150c:0x1510], bytes.fromhex('4883f800'))
+        self.assertEqual(len(fixed), len(library))
+        with self.assertRaises(ValueError):
+            startup.patch_x11_cache(fixed)
+
+    def test_select_menu_start_match_firmware_button_order(self):
+        mapping = (STOCK/'control.txt').read_text()
+        self.assertIn('back:b6,guide:b8,start:b7', mapping)
+
     def test_both_physical_key_devices_are_listened_to(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -35,6 +54,22 @@ class StartupTests(unittest.TestCase):
                 self.assertEqual(call.call_args_list[1].args[0][-2:],['digital volume','63'])
                 call.reset_mock();volume.set_volume(0)
                 self.assertEqual(call.call_args.args[0][-2:],['digital volume','0'])
+
+    def test_only_duplicate_keyboard_is_grabbed_and_failure_closes_fds(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for n, name in enumerate(['ANBERNIC-keys', 'dierct-keys-polled']):
+                p = root/f'event{n}/device/name'
+                p.parent.mkdir(parents=True)
+                p.write_text(name)
+            nodes = [Path('/dev/input/event0'), Path('/dev/input/event1')]
+            with patch.object(volume.os, 'open', side_effect=[20, 21]), patch.object(volume.fcntl, 'ioctl') as grab:
+                self.assertEqual(volume.open_devices(nodes, root), [20, 21])
+                grab.assert_called_once_with(21, volume.EVIOCGRAB, 1)
+            with patch.object(volume.os, 'open', side_effect=[20, 21]), patch.object(volume.os, 'close') as close, patch.object(volume.fcntl, 'ioctl', side_effect=OSError('busy')):
+                with self.assertRaises(OSError):
+                    volume.open_devices(nodes, root)
+                self.assertEqual([call.args for call in close.call_args_list], [(20,), (21,)])
 
     def test_intro_skip_preserves_endings(self):
         xml=b'<cutscenes><cutscene id="1" name="Intro"><anm2part anm2="intro.anm2"/></cutscene><cutscene id="2" name="Ending"><videopart file="ending.ogv"/></cutscene></cutscenes>'

@@ -55,8 +55,19 @@ if [ ! -e /dev/dri/card0 ]; then
 fi
 mount -o loop,ro "$GAMEDIR/runtime/weston_pkg_0.2.squashfs" "$ISAAC_WESTON_DIR"
 mounted=1
+export ISAAC_INPUT_READY="$LOGDIR/input-ready"
+rm -f "$ISAAC_INPUT_READY"
 python3 "$GAMEDIR/runtime/stock/volume.py" > "$LOGDIR/volume.log" 2>&1 &
 volume_pid=$!
+for attempt in $(seq 1 30); do
+    [ ! -f "$ISAAC_INPUT_READY" ] || break
+    kill -0 "$volume_pid" 2>/dev/null || break
+    sleep .1
+done
+if [ ! -f "$ISAAC_INPUT_READY" ]; then
+    echo "Input isolation failed; see $LOGDIR/volume.log"
+    exit 1
+fi
 "$controlfolder/gptokeyb2" isaac.x64.hack -Z -c "$GAMEDIR/isaac.gptk" > "$LOGDIR/controls.log" 2>&1 &
 gpt_pid=$!
 cd "$GAMEDIR/gamefiles"
