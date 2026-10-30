@@ -26,6 +26,26 @@ The development card was found mounted read-only with FAT errors affecting two d
 
 The game is base **Rebirth v1.032**, using the pinned Linux depot and upstream PortMaster port. DLCs are not included.
 
+## Ability controls
+
+The control audit checks the complete input path: firmware button events → controller mapping → game keyboard bindings → visible game effects. It corrected crossed X/Y entries in the custom mapping; physical X now shoots up and Y shoots left. A and B shoot right and down.
+
+| Input | Representative effect checked |
+| --- | --- |
+| R2 | Book of Belial activated and spent its charge; Doctor's Remote produced its aiming target and missile |
+| R1 | The Magician card and a pill were consumed; the game reported its PillCard action |
+| L1 | Bomb stock decreased from five to four and the bomb exploded |
+| L2, tap | With Starter Deck and two cards, selection changed from 2 of Spades to The Magician |
+| L2, hold | Held card and trinket were dropped onto the floor |
+| X / Y, hold then release | Brimstone charged and fired upward / leftward respectively |
+| Face buttons after R2 | Doctor's Remote target moved using the shooting controls |
+| A then X | Ludovico's tear moved right and upward independently of the stationary player |
+| Menu, hold | Expanded map and elapsed-time overlay appeared |
+
+Tests used a separate save/config copy and temporary RAM-backed character definitions to obtain representative equipment without grinding unlocks. The character override is removed when the test process exits. Game archives are reused unchanged; the public repository contains neither these extracted definitions nor save data or screenshots. No per-item control patch was needed; the only mapping correction from this audit was X/Y direction order.
+
+Passive powers apply without a dedicated button. Active items share R2, consumables share R1, and attack modifiers retain the shooting controls. Charge bars, item cooldowns, resources and short activation animations still determine when an action can be used. These checks exercise the input mechanisms; they do not claim exhaustive validation of every collectible, synergy or DLC mechanic.
+
 ## Performance evidence
 
 The target's native refresh rate is approximately 59.7 Hz. With the original `VSync=0`, inspected gameplay samples were generally 58–60 FPS with recurring frame intervals around 35–38 ms. With `VSync=1`, inspected samples stabilized near 59.7 FPS with fewer long frame intervals. The stock adaptation therefore enables VSync.

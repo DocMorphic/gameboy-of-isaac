@@ -34,9 +34,9 @@ class StartupTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             startup.patch_x11_cache(fixed)
 
-    def test_select_menu_start_match_firmware_button_order(self):
+    def test_face_select_menu_start_match_firmware_button_order(self):
         mapping = (STOCK/'control.txt').read_text()
-        self.assertIn('back:b6,guide:b8,start:b7', mapping)
+        self.assertIn('a:b0,b:b1,x:b2,y:b3,back:b6,guide:b8,start:b7', mapping)
 
     def test_both_physical_key_devices_are_listened_to(self):
         with tempfile.TemporaryDirectory() as tmp:
