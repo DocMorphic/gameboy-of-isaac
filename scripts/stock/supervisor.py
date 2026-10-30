@@ -11,6 +11,8 @@ import sys
 import threading
 import time
 
+from console_state import ConsoleState
+
 
 def write_log(stream, path, started):
     """Keep two bounded logs and discard GL4ES's repetitive per-pixel tracing."""
@@ -55,6 +57,7 @@ def main():
     if len(configured) != 160 or struct.unpack_from('7I', configured) != (640, 480, 640, 960, 0, 0, 32):
         os.close(fd)
         raise RuntimeError('Unexpected firmware framebuffer configuration')
+    console = ConsoleState()
     child = None
     bound_log = None
     def interrupted(signum, frame):
@@ -85,33 +88,43 @@ def main():
         logger.join(timeout=2)
         return result
     finally:
-        if child is not None:
+        signal.signal(signal.SIGTERM, signal.SIG_IGN)
+        signal.signal(signal.SIGINT, signal.SIG_IGN)
+        try:
+            if child is not None:
+                try:
+                    os.killpg(child.pid, signal.SIGTERM)
+                except ProcessLookupError:
+                    pass
+                try:
+                    child.wait(timeout=5)
+                except subprocess.TimeoutExpired:
+                    os.killpg(child.pid, signal.SIGKILL)
+                    child.wait()
+                # The shell can exit before descendants release open log files.
+                try:
+                    os.killpg(child.pid, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
+            if bound_log is not None:
+                for attempt in range(20):
+                    result = subprocess.run(['umount', str(bound_log)], capture_output=True)
+                    if result.returncode == 0:
+                        break
+                    time.sleep(.1)
+                else:
+                    print('Could not release temporary game log mount', file=sys.stderr)
+            os.sync()
+        finally:
             try:
-                os.killpg(child.pid, signal.SIGTERM)
-            except ProcessLookupError:
-                pass
-            try:
-                child.wait(timeout=5)
-            except subprocess.TimeoutExpired:
-                os.killpg(child.pid, signal.SIGKILL)
-                child.wait()
-            # The shell can exit before its descendants release open log files.
-            try:
-                os.killpg(child.pid, signal.SIGKILL)
-            except ProcessLookupError:
-                pass
-        if bound_log is not None:
-            for attempt in range(20):
-                result = subprocess.run(['umount', str(bound_log)], capture_output=True)
-                if result.returncode == 0:
-                    break
-                time.sleep(.1)
-            else:
-                print('Could not release temporary game log mount', file=sys.stderr)
-        os.sync()
-        fcntl.ioctl(fd, 0x4601, saved)
-        os.close(fd)
-        lock.close()
+                fcntl.ioctl(fd, 0x4601, saved)
+            finally:
+                os.close(fd)
+                try:
+                    state = console.restore()
+                    (logs / 'console-restore.json').write_text(json.dumps(state)+'\n')
+                finally:
+                    lock.close()
 
 
 if __name__ == '__main__':

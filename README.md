@@ -103,6 +103,8 @@ If face-button firing directions are wrong, use the launcher's alternate button-
 
 Passive powers apply automatically. Active items share **R2** and usually need a full charge bar; aimed actives use the shooting buttons after activation. Cards and pills share **R1**. There is no separate button to assign for each collectible. See the ability-control checks in [hardware testing](docs/TESTING.md). These controls cover the installed base Rebirth game; DLC-specific abilities are outside this installation.
 
+At the title screen, Select quits Isaac and returns to the firmware's Apps/Ports list.
+
 Save/config data is under `ports/tboirebirth/conf/`. Back it up before upgrading. This project does not import desktop saves or configure Steam Cloud.
 
 ## Validation and credits

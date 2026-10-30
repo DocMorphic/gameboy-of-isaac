@@ -20,6 +20,7 @@ This checks the exact board, framebuffer configuration, SDL/Mali libraries, comp
 
 - A private PortMaster runtime supplies the controller helper; Westonpack supplies headless XWayland, Crusty and GL4ES. The native Mali-G31 driver renders the game.
 - The supervisor temporarily applies the firmware's 640×480, 32-bit framebuffer configuration and restores the previous mode on exit.
+- Exit cleanup also releases native SDL's graphics/process-controlled virtual terminal, enables terminal switching, restores the starting console's keyboard/terminal settings, and reactivates that console before the firmware starts its menu. Restoring the framebuffer alone leaves the menu waiting for terminal activation and showing a black screen.
 - The launcher uses the firmware's newer SDL 2.28 library and an explicit mapping for the built-in controller. Physical A/B/X/Y map to indices 0/1/2/3, so shooting follows the button positions. Crusty's cached library symlinks are refreshed on launch.
 - The in-game Fullscreen option stays off: the native backend already fills the panel, while the original fullscreen switch caused inconsistent virtual window sizes during testing. VSync is enabled for more even frame pacing.
 - The upstream fractional scaling, reduced effects, reduced overlays and XKB fixes are retained. The X11 cache expiration is reduced from ten seconds to one second so faster startup still acquires the correct panel size. Its two hash tables share keys; only the timestamps table now owns those keys, preventing double frees during refresh and cleanup. Both tables still free their own values. Patches require pinned source hashes and expected byte sequences.
@@ -35,6 +36,8 @@ Always launch through the menu for normal play. Suspending a running frontend le
 ## Diagnostics and storage
 
 Current stock-adaptation logs are in `/dev/shm/gameboy-of-isaac`, a RAM filesystem cleared on reboot. The supervisor keeps at most two 1 MiB output logs and filters repetitive GL readback tracing. It also temporarily redirects the game's own log to RAM with a bind mount; save files stay on the card. Old logs beside the game are not current diagnostics.
+
+`console-restore.json` records the game's active terminal and the console restored on exit. A successful game exit and a running `dmenu.bin` process alone do not prove that the menu is visible. On the tested firmware, the display engine's `capture_dump` interface can capture the composed display, including the menu's separate YUV layer, into one temporary BMP in RAM; `/dev/fb0` alone cannot capture that menu layer.
 
 FPS recording is off during normal play. Set `ISAAC_DIAGNOSTICS=1` for a profiling launch: `fps.csv` records native SDL buffer-swap timing, including frame intervals over 25 ms and 50 ms, and is capped at approximately 256 KiB in RAM. This measures presentation calls, not the game's internal simulation rate. Loading screens and diagnostic screenshots must be separated from gameplay samples. `startup-timing.json` records the archive-stage time and the first panel-sized viewport after archive loading; inspect a screenshot to confirm the visible title state.
 
