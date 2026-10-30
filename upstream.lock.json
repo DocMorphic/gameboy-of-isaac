@@ -1,0 +1,20 @@
+{
+  "checked": "2026-10-30",
+  "assets": [
+    {
+      "name": "tboirebirth.zip",
+      "url": "https://github.com/PortsMaster/PortMaster-New/releases/download/2026-08-21_2000/tboirebirth.zip",
+      "sha256": "04a347e5e92f4c0a20de932cb0afa1e638edd8e4ea5926ce1de6defe3199fd95"
+    },
+    {
+      "name": "weston_pkg_0.2.squashfs",
+      "url": "https://github.com/PortsMaster/PortMaster-New/releases/download/2025-07-24_0745/weston_pkg_0.2.squashfs",
+      "sha256": "0bccaeebc11296bb1fe4278c9677cb82965c5a04bcd63745fa09d78228bc1a93"
+    },
+    {
+      "name": "PortMaster.zip",
+      "url": "https://github.com/PortsMaster/PortMaster-GUI/releases/download/2026.10.29-1355/PortMaster.zip",
+      "sha256": "6261911f9ddd1e466f2041c3a20e0d78b6e17ca262a3d542f5f4c28c11ed9643"
+    }
+  ]
+}

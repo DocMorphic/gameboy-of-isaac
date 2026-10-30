@@ -1,0 +1,16 @@
+.local/
+__pycache__/
+*.pyc
+.DS_Store
+gamefiles/
+*.zip
+*.squashfs
+*.a
+*.so
+isaac.x64
+isaac.i386
+isaac.x64.hack
+conf/
+*.dat
+*.log
+.env*

@@ -1,0 +1,71 @@
+{
+  "app": 250900,
+  "depot": 250903,
+  "manifest": "5148620425580684010",
+  "files": {
+    "changelog.txt": {
+      "size": 2744,
+      "sha256": "26d6554982b47d4e5ed1f15095439186e8d550be27b4dd4abf8ecc6b262d27b4"
+    },
+    "isaac.i386": {
+      "size": 3120460,
+      "sha256": "36844c4a4927229babe632dfe3a1ccef5ac34e2db008a1fb17aa7ddf47062dcd"
+    },
+    "isaac.x64": {
+      "size": 3059216,
+      "sha256": "a88a1ce59d570c9defd4e21974148f9c5b5f1e9e2ef39d1a9edc824162dd7eab"
+    },
+    "lib32/libsteam_api.so": {
+      "size": 70036,
+      "sha256": "6438aeb632f43fd97decac5054b6767332bcbe2d3d0f67e3407c3eb51d15a0f9"
+    },
+    "lib64/libsteam_api.so": {
+      "size": 72543,
+      "sha256": "8a3278b8905576f4856bd0ea55964bf0ffa28ec12b3b1c19d74a0153ddc15e9b"
+    },
+    "resources/packed/animations.a": {
+      "size": 660300,
+      "sha256": "f26574b06c98fa112c368f7824267678e64290d52cf654ae96c311b32e369b94"
+    },
+    "resources/packed/config.a": {
+      "size": 130612,
+      "sha256": "0d54ec20fe907487662367ac5bc46adf1429a83e55d8cfc4bef298d475d81c2c"
+    },
+    "resources/packed/fonts.a": {
+      "size": 15061,
+      "sha256": "f6f0a9280b0c066cafddc0e9ab6b59522ac4401d9168a6be81ae978d075f6f6f"
+    },
+    "resources/packed/graphics.a": {
+      "size": 17670194,
+      "sha256": "7b7c0ef44fd441fe1ab44a848e60c1295faeaf9b72ac6643aa368001e9957d66"
+    },
+    "resources/packed/music.a": {
+      "size": 182744758,
+      "sha256": "0e8288bf503246e0c57b6a37d6d9d87ba5a07680cc120e926b3327371f305bec"
+    },
+    "resources/packed/readme.txt": {
+      "size": 1055,
+      "sha256": "5816f59298d1894ded363a1eca0f4ad293e7f3005e1dcb78b8113e5ffa8f6f0c"
+    },
+    "resources/packed/rooms.a": {
+      "size": 655918,
+      "sha256": "6eac76a5b5fa9dafeb5fe75a2705ef09c047c4bd9e8176f20ef6578e6001493c"
+    },
+    "resources/packed/sfx.a": {
+      "size": 25333050,
+      "sha256": "1f66a8e6695edd332ab7b94378b0c9625deae2e04f4c95539ad5682d52a44273"
+    },
+    "resources/packed/videos.a": {
+      "size": 93004538,
+      "sha256": "e7a025789a2c0b3f5de974e701039d46867e469e9b20cf68fa15fda3c41e9400"
+    },
+    "run-i386.sh": {
+      "size": 83,
+      "sha256": "2f26829103073dad7edf2ee380b7234335ea559c755ff9df89bf1945baae1c80"
+    },
+    "run-x64.sh": {
+      "size": 82,
+      "sha256": "b320bb447e30573c468a29449dc679ae02750e282a22057790a7e06d47de9453"
+    }
+  }
+}
