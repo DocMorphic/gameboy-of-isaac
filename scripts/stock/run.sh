@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 GAMEDIR="${ISAAC_GAMEDIR:?}"
+LOGDIR="${ISAAC_LOG_DIR:-/dev/shm/gameboy-of-isaac}"
+mkdir -p "$LOGDIR"
+python3 "$GAMEDIR/runtime/stock/startup.py" "$GAMEDIR"
 export controlfolder="$GAMEDIR/runtime/PortMaster"
 source "$GAMEDIR/runtime/stock/control.txt"
 export TERM=linux
@@ -8,9 +11,9 @@ export LD_LIBRARY_PATH="$controlfolder:/usr/lib"
 export LD_PRELOAD=/usr/lib/aarch64-linux-gnu/libSDL2-2.0.so.0.2800.5
 export SDL_VIDEODRIVER=mali SDL_VIDEO_EGL_DRIVER=/usr/lib/libmali.so.0
 export CRUSTY_LIBSDL=/usr/lib/aarch64-linux-gnu/libSDL2-2.0.so.0.2800.5
-if [ -f "$GAMEDIR/runtime/libfps-sdl.so" ]; then
+if [ "${ISAAC_DIAGNOSTICS:-0}" = 1 ] && [ -f "$GAMEDIR/runtime/libfps-sdl.so" ]; then
     export CRUSTY_LIBSDL="$GAMEDIR/runtime/libfps-sdl.so"
-    export ISAAC_FPS_FILE="$GAMEDIR/fps.csv"
+    export ISAAC_FPS_FILE="$LOGDIR/fps.csv"
 fi
 export CRUSTY_LIBEGL=/usr/lib/libmali.so.0
 # Crusty's loader keeps these symlinks between launches; refresh our selected libraries.
@@ -35,26 +38,32 @@ cleanup() {
     [ -z "$volume_pid" ] || kill "$volume_pid" 2>/dev/null || true
     if [ "$mounted" -eq 1 ]; then
         bash "$GAMEDIR/runtime/westonwrap-stock.sh" cleanup >/dev/null 2>&1 || true
-        umount "$ISAAC_WESTON_DIR" 2>/dev/null || true
+        for attempt in $(seq 1 20); do
+            mountpoint -q "$ISAAC_WESTON_DIR" || break
+            umount "$ISAAC_WESTON_DIR" 2>/dev/null && break
+            sleep .1
+        done
     fi
     [ "$created_drm" -eq 0 ] || rm -f /dev/dri/card0
 }
 trap cleanup EXIT
+trap 'exit 143' TERM
+trap 'exit 130' INT
 if [ ! -e /dev/dri/card0 ]; then
     mknod /dev/dri/card0 c 226 0
     created_drm=1
 fi
 mount -o loop,ro "$GAMEDIR/runtime/weston_pkg_0.2.squashfs" "$ISAAC_WESTON_DIR"
 mounted=1
-python3 "$GAMEDIR/runtime/stock/volume.py" > "$GAMEDIR/volume.log" 2>&1 &
+python3 "$GAMEDIR/runtime/stock/volume.py" > "$LOGDIR/volume.log" 2>&1 &
 volume_pid=$!
-"$controlfolder/gptokeyb2" isaac.x64.hack -Z -c "$GAMEDIR/isaac.gptk" > "$GAMEDIR/controls.log" 2>&1 &
+"$controlfolder/gptokeyb2" isaac.x64.hack -Z -c "$GAMEDIR/isaac.gptk" > "$LOGDIR/controls.log" 2>&1 &
 gpt_pid=$!
 cd "$GAMEDIR/gamefiles"
 export LIBGL_ALPHAHACK=1 LIBGL_NOHIGHP=1 LIBGL_FORCE16BITS=1
 export LIBGL_FPS=1
 export BOX64_DYNAREC_CALLRET=1
-export BOX64_LD_PRELOAD="$GAMEDIR/libs.x64/libx11_cache.so:$GAMEDIR/libs.x64/libxkb_fix.so"
+export BOX64_LD_PRELOAD="$GAMEDIR/libs.x64/libx11_cache_fast.so:$GAMEDIR/libs.x64/libxkb_fix.so"
 export BOX64_LD_LIBRARY_PATH="$GAMEDIR/libs.x64:$GAMEDIR/gamefiles/lib64"
 bash "$GAMEDIR/runtime/westonwrap-stock.sh" headless noop kiosk crusty_glx_gl4es \
     "$GAMEDIR/box64" isaac.x64.hack

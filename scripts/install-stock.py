@@ -131,7 +131,8 @@ def install(bundle, ports, apply):
         isaac.check_file(squash, {'sha256': isaac.digest(bundle / 'dependencies' / squash.name)})
         wrapper = subprocess.check_output(['unsquashfs', '-cat', str(squash), 'westonwrap.sh'], text=True)
         (runtime / 'westonwrap-stock.sh').write_text(patch_weston(wrapper))
-        shutil.copytree(Path(__file__).parent / 'stock', runtime / 'stock')
+        shutil.copytree(Path(__file__).parent / 'stock', runtime / 'stock', ignore=shutil.ignore_patterns('__pycache__', '*.pyc'))
+        shutil.copyfile(isaac.ROOT / 'steam-depot.lock.json', runtime / 'steam-depot.lock.json')
         subprocess.run(['gcc', '-O2', '-fPIC', '-shared', str(runtime / 'stock/fps-monitor.c'),
                         '-o', str(runtime / 'libfps-sdl.so'), '-Wl,--no-as-needed', SDL, '-ldl'], check=True)
         exe = game / 'gamefiles/isaac.x64'

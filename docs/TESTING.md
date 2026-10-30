@@ -7,12 +7,16 @@
 | Game files | Exact Steam Linux depot verified; all 178 transferred game/port files checked |
 | Graphics | Native Mali acceleration; game screenshots inspected at 640×480; normal, treasure and sacrifice rooms rendered |
 | Audio | Owner confirmed audible game sound; PCM stream running without device-busy error |
-| Volume buttons | Dedicated input events changed live mixer 0 → 10% → 0; final state muted |
+| Volume buttons | Both physical event devices handled; owner confirmed physical Volume +/− changed audible volume after the final fix |
 | Controls | Physical movement/shooting confirmed by owner; remote tests verified A confirm, B back, B shooting without pause, directional shooting, movement, bomb and map inputs |
 | Gameplay | Early Basement combat on normal/hard runs, enemies/projectiles, damage, death, item pickup and room transitions exercised |
 | Save/relaunch | Used in-game Exit Game, quit to frontend, relaunched and Continued; seed, room, health and inventory matched |
 | Cleanup | Weston/controller helper exited and frontend restarted; save/config testing used an isolated copy |
-| Source checks | Nine installer/patch/safety tests passed; shell syntax checked; native diagnostics compiled with warnings treated as errors |
+| Source checks | Fourteen installer/patch/input/startup safety tests passed; shell syntax checked; native diagnostics compiled with warnings treated as errors |
+
+Startup follow-up: the original archive-loading stage logged **28,212 ms**. After native asset verification and the guarded checksum patch, repeated launches logged **111–1,735 ms** for that stage. These figures are archive-stage times, not total launch time. Initial native verification took approximately 27 seconds once; unchanged later launches reuse its cached result. Screenshots confirmed the intro was skipped and both title and saved room fit the 640×480 panel with the shorter X11 cache interval. Intro configuration tests verify ending cutscenes are retained.
+
+The development card was found mounted read-only with FAT errors affecting two diagnostic log chains and orphan clusters. Save/config and FAT metadata backups were made privately before an offline filesystem repair. No save `.dat` damage was reported, packed assets passed SHA-256 verification, and card writes worked after repair. The launcher does not automatically repair cards; its new read-only check prevents playing with unwritable saves.
 
 The game is base **Rebirth v1.032**, using the pinned Linux depot and upstream PortMaster port. DLCs are not included.
 
@@ -42,7 +46,7 @@ Record the model, firmware version, PortMaster version, launch options and date 
 
 | Symptom | Inspect |
 | --- | --- |
-| Immediately returns to menu | `ports/tboirebirth/log.txt`, correct Linux depot, PortMaster location and dependencies |
+| Immediately returns to menu | On this stock adaptation, `/dev/shm/gameboy-of-isaac/log.txt`; on upstream PortMaster, `ports/tboirebirth/log.txt`. Check Linux depot, PortMaster location and dependencies |
 | Cannot find Weston runtime | Active PortMaster `libs/weston_pkg_0.2.squashfs`; compare SHA-256 with the lock file |
 | Launcher fails before game | `runtimes/love_11.5/`, graphics/backend support and controller helper |
 | Keyboard-related game crash | Keep XKB Crash Fix enabled |

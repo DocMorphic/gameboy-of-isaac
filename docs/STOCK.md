@@ -22,15 +22,20 @@ This checks the exact board, framebuffer configuration, SDL/Mali libraries, comp
 - The supervisor temporarily applies the firmware's 640×480, 32-bit framebuffer configuration and restores the previous mode on exit.
 - The launcher uses the firmware's newer SDL 2.28 library and an explicit mapping for the built-in controller. Crusty's cached library symlinks are refreshed on launch.
 - The in-game Fullscreen option stays off: the native backend already fills the panel, while the original fullscreen switch caused inconsistent virtual window sizes during testing. VSync is enabled for more even frame pacing.
-- The upstream fractional scaling, reduced effects, reduced overlays, X11 cache and XKB fixes are retained. The executable patch requires exactly one match for each original byte sequence.
-- A private ALSA configuration avoids the firmware hook that locks the digital mixer at full volume. A small event listener handles the dedicated volume keys, maintains the firmware's 0–10 volume value, and stops when the game exits.
+- The upstream fractional scaling, reduced effects, reduced overlays and XKB fixes are retained. The X11 cache expiration is reduced from ten seconds to one second so faster startup still acquires the correct panel size. Patches require pinned source hashes and expected byte sequences.
+- `startup.py` verifies the original executable and packed archives against the pinned Steam SHA-256 manifest natively. It caches successful checks with file size, modification and change timestamps. It then generates a separate executable that bypasses redundant archive checksum work under Box64; original files remain intact. First launch, changed metadata or a missing cache requires full verification again.
+- The opening intro alone is removed through a private loose cutscene configuration generated from the verified archive. Ending cutscenes remain present.
+- A private ALSA configuration avoids the firmware hook that locks the digital mixer at full volume. A small event listener handles volume keys from both `ANBERNIC-keys` and `dierct-keys-polled`, deduplicates overlapping events, uses audible 3 dB analog steps and digital mute, maintains the firmware's 0–10 volume value, and stops when the game exits.
 - A/B menu actions are configured independently of their shooting actions. Start/Select remain available.
+- The supervisor refuses to launch on a read-only game card and synchronizes saved data after the game exits.
 
 Always launch through the menu for normal play. Suspending a running frontend leaves its audio device open and prevents Isaac from playing sound. Development used a temporary remote harness to close/restart the frontend; that harness is not needed for normal use.
 
 ## Diagnostics and storage
 
-`fps.csv` records native SDL buffer-swap timing, including frame intervals over 25 ms and 50 ms. This measures presentation calls, not the game's internal simulation rate. Loading screens and diagnostic screenshots must be separated from gameplay samples. The CSV is capped at approximately 256 KiB, and the supervisor keeps at most two 1 MiB logs, filtering repetitive GL readback tracing.
+Current stock-adaptation logs are in `/dev/shm/gameboy-of-isaac`, a RAM filesystem cleared on reboot. The supervisor keeps at most two 1 MiB output logs and filters repetitive GL readback tracing. It also temporarily redirects the game's own log to RAM with a bind mount; save files stay on the card. Old logs beside the game are not current diagnostics.
+
+FPS recording is off during normal play. Set `ISAAC_DIAGNOSTICS=1` for a profiling launch: `fps.csv` records native SDL buffer-swap timing, including frame intervals over 25 ms and 50 ms, and is capped at approximately 256 KiB in RAM. This measures presentation calls, not the game's internal simulation rate. Loading screens and diagnostic screenshots must be separated from gameplay samples. `startup-timing.json` records the archive-stage time and the first panel-sized viewport after archive loading; inspect a screenshot to confirm the visible title state.
 
 A screenshot is only captured when both `ISAAC_CAPTURE_REQUEST` and `ISAAC_CAPTURE_FILE` are set and the request file is created. It reads the native GPU framebuffer; ordinary X11 screenshots cannot see this rendering path. Captures are private and must not be added to this source repository.
 

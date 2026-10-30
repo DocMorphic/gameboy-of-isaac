@@ -12,6 +12,8 @@ The RG40XX V's firmware matters. PortMaster lists muOS, KNULLI and ROCKNIX for t
 
 For the tested stock-derived firmware, open **Isaac Rebirth** from **App Center → Apps** on the internal card, or **Binding Of Isaac Rebirth** under **RA Game → PORTS**. See [hardware test results](docs/TESTING.md) and [the stock adaptation](docs/STOCK.md).
 
+Once installed, the game and saves work locally without a laptop or Wi-Fi. The stock adaptation skips the opening intro and verifies packed assets natively before caching verification, reducing repeated startup work. Physical volume buttons have been confirmed on the handheld. Quit runs through the in-game menu and shut down the handheld normally so saves reach the card.
+
 ## Prepare on the Mac
 
 Requires Python 3.9+, `curl`, Steam, and a Steam account that owns Rebirth. No Python packages are needed.
