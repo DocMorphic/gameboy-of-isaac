@@ -1,0 +1,20 @@
+{
+  "seconds": 60.997155111999746,
+  "samples": 59,
+  "mean_fps": 59.710338983050846,
+  "min_fps": 59.33,
+  "max_fps": 60.05,
+  "max_frame_ms": 26.9,
+  "frames_over_25ms": 25,
+  "frames_over_50ms": 0,
+  "temperature_C": 58.058,
+  "date": "2026-10-30",
+  "device": "Anbernic RG40XX V",
+  "firmware": "V1.0.8 (20250915), StockOS MOD marker 3.7",
+  "game": "The Binding of Isaac: Rebirth v1.032, Steam Linux depot 250903",
+  "vsync": 1,
+  "resolution": "640x480",
+  "scene": "Basement I starting room; stationary player firing in each cardinal direction for 15 seconds; no enemies or screenshot capture during timed interval",
+  "measurement": "Native SDL_GL_SwapWindow intervals, one-second aggregates; not internal simulation ticks",
+  "limitations": "Does not establish late-game, boss or high-entity-count performance"
+}

@@ -1,6 +1,32 @@
 # Target acceptance checks
 
-**Current target gameplay result: NOT TESTED.** File hashes and installer tests are not substitutes for these checks.
+**Hardware validation: 2026-10-30, RG40XX V, firmware V1.0.8 (20250915), StockOS MOD marker 3.7.** The full base Rebirth installation runs locally with the Mali-G31 GPU. This is a working installation, with the remaining coverage limits below.
+
+| Check | Result |
+| --- | --- |
+| Game files | Exact Steam Linux depot verified; all 178 transferred game/port files checked |
+| Graphics | Native Mali acceleration; game screenshots inspected at 640×480; normal, treasure and sacrifice rooms rendered |
+| Audio | Owner confirmed audible game sound; PCM stream running without device-busy error |
+| Volume buttons | Dedicated input events changed live mixer 0 → 10% → 0; final state muted |
+| Controls | Physical movement/shooting confirmed by owner; remote tests verified A confirm, B back, B shooting without pause, directional shooting, movement, bomb and map inputs |
+| Gameplay | Early Basement combat on normal/hard runs, enemies/projectiles, damage, death, item pickup and room transitions exercised |
+| Save/relaunch | Used in-game Exit Game, quit to frontend, relaunched and Continued; seed, room, health and inventory matched |
+| Cleanup | Weston/controller helper exited and frontend restarted; save/config testing used an isolated copy |
+| Source checks | Nine installer/patch/safety tests passed; shell syntax checked; native diagnostics compiled with warnings treated as errors |
+
+The game is base **Rebirth v1.032**, using the pinned Linux depot and upstream PortMaster port. DLCs are not included.
+
+## Performance evidence
+
+The target's native refresh rate is approximately 59.7 Hz. With the original `VSync=0`, inspected gameplay samples were generally 58–60 FPS with recurring frame intervals around 35–38 ms. With `VSync=1`, inspected samples stabilized near 59.7 FPS with fewer long frame intervals. The stock adaptation therefore enables VSync.
+
+A timed 6.61-second early combat interval produced six complete one-second samples of **59.70–59.71 FPS**, with a maximum frame interval of **25.78 ms**, three frames over 25 ms total, and none over 50 ms. This interval contained no screenshot readback. Screenshots themselves can cause approximately 100 ms stalls and are excluded from performance measurements. Loading new archives/rooms also causes stalls and is reported separately from steady gameplay.
+
+A separate **61-second sustained shooting test** in the empty starting room averaged **59.71 FPS** across 59 complete samples (range **59.33–60.05 FPS**), with a maximum frame interval of **26.9 ms** and **zero frames over 50 ms**. The reported temperature at the end was 58.1 °C. See the [raw timing samples](benchmarks/rg40xxv-sustained.csv) and [measurement context](benchmarks/rg40xxv-sustained.json). This measures sustained presentation and shooting, not a late-game stress scene.
+
+**Coverage limits:** no full-game completion, late-floor stress run, every boss/item combination, HDMI/headphone validation, or power-cycle test was performed. Early-game measurements are not a guarantee of constant performance in every situation. The full base game's assets are installed; this is not a demo or a subset of levels.
+
+## Repeatable acceptance checks
 
 Record the model, firmware version, PortMaster version, launch options and date when testing. Do not commit personal network addresses, credentials, game assets or save files.
 

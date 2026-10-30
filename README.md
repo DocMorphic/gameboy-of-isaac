@@ -2,13 +2,15 @@
 
 Prepare **The Binding of Isaac: Rebirth** for an **Anbernic RG40XX V**, using BinaryCounter's existing PortMaster port and your own Steam copy.
 
-**Status: installation bundle prepared and checked; installation on the target handheld and gameplay are still unverified.** This repository provides setup tooling, not a newly written game engine or a Game Boy ROM. The target is the Linux Anbernic handheld.
+**Status: installed and running with Mali hardware acceleration on an RG40XX V. Audio, volume keys, menu controls, early gameplay and save/relaunch have been tested. Sampled gameplay runs near 59.7 FPS; late-game stress performance is not yet verified.** This repository provides setup tooling, not a newly written game engine or a Game Boy ROM. The target is the Linux Anbernic handheld.
 
 ## What runs
 
 The selected port runs the original Linux x86-64 **base Rebirth** executable through Box64, GL4ES and Westonpack. It includes handheld controls and performance options. It does **not** support Afterbirth, Afterbirth+, Repentance, or the GOG build. Your macOS executable cannot substitute for the Linux depot.
 
-The RG40XX V's firmware matters. PortMaster lists muOS, KNULLI and ROCKNIX for this model. Original Anbernic firmware is not officially supported. A separate [StockOS MOD adaptation](https://github.com/kai4man/PortMaster-for-StockOS-MOD) lists Rebirth as working, but requires its system patches; that does not establish compatibility with an untouched stock installation. See [the research notes](docs/RESEARCH.md).
+The RG40XX V's firmware matters. PortMaster lists muOS, KNULLI and ROCKNIX for this model. Original Anbernic firmware is not officially supported. A separate [StockOS MOD adaptation](https://github.com/kai4man/PortMaster-for-StockOS-MOD) lists Rebirth as working, but requires its system patches; that does not establish compatibility with an untouched stock installation. This project also includes an isolated adaptation for the specific stock-derived firmware tested here; see [stock installation and diagnostics](docs/STOCK.md) and [the research notes](docs/RESEARCH.md).
+
+For the tested stock-derived firmware, open **Isaac Rebirth** from **App Center → Apps** on the internal card, or **Binding Of Isaac Rebirth** under **RA Game → PORTS**. See [hardware test results](docs/TESTING.md) and [the stock adaptation](docs/STOCK.md).
 
 ## Prepare on the Mac
 
@@ -79,7 +81,7 @@ If PortMaster lives on an unmounted Linux filesystem, use SSH/SFTP or the firmwa
 
 Eject mounted media cleanly, boot the handheld, and open **Binding Of Isaac Rebirth** from Ports. Keep the launcher's default performance options for the initial test. Enable fullscreen in the game if needed. Complete [the gameplay checks](docs/TESTING.md) before calling the installation finished.
 
-## Controls on the RG40XX V
+## Controls on the RG40XX V stock adaptation
 
 | Input | Action |
 | --- | --- |
@@ -89,8 +91,10 @@ Eject mounted media cleanly, boot the handheld, and open **Binding Of Isaac Rebi
 | R1 | Pill / card |
 | L2 | Drop trinket |
 | R2 | Active item |
-| Start | Confirm |
+| A / Start | Confirm in menus; A shoots right during a run |
+| B | Back in menus; shoot down during a run |
 | Select | Pause / back |
+| Volume + / − | Adjust volume (stock adaptation) |
 | Guide/menu button | Map, subject to firmware mapping |
 
 If face-button firing directions are wrong, use the launcher's alternate button-layout options. The RG40XX V has one stick; the face buttons provide the second directional control set.
